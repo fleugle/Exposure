@@ -8,6 +8,7 @@ import io.github.mortuusars.exposure.advancements.predicate.FramePredicate;
 import io.github.mortuusars.exposure.advancements.predicate.TamedPredicate;
 import io.github.mortuusars.exposure.advancements.trigger.FrameExposedTrigger;
 import io.github.mortuusars.exposure.advancements.trigger.FramePrintedTrigger;
+import io.github.mortuusars.exposure.util.supporter.Supporters;
 import io.github.mortuusars.exposure.world.block.FlashBlock;
 import io.github.mortuusars.exposure.world.block.LightroomBlock;
 import io.github.mortuusars.exposure.world.block.entity.LightroomBlockEntity;
@@ -17,7 +18,7 @@ import io.github.mortuusars.exposure.world.camera.film.properties.FilmStyle;
 import io.github.mortuusars.exposure.world.camera.component.CompositionGuide;
 import io.github.mortuusars.exposure.world.camera.component.FlashMode;
 import io.github.mortuusars.exposure.world.camera.ExposureType;
-import io.github.mortuusars.exposure.world.camera.capture.ProjectionMode;
+import io.github.mortuusars.exposure.world.camera.capture.DitherMode;
 import io.github.mortuusars.exposure.world.camera.component.SelfTimer;
 import io.github.mortuusars.exposure.world.camera.component.ShutterSpeed;
 import io.github.mortuusars.exposure.data.ColorPalette;
@@ -79,7 +80,7 @@ public class Exposure {
     public static final String ID = "exposure";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final List<String> MODS_REQUIRING_DIRECT_CAPTURE = List.of("iris", "oculus", "effective", "distanthorizons");
+    public static final List<String> MODS_REQUIRING_DIRECT_CAPTURE = List.of("veil", "pmweather");
     public static final int MAX_ENTITIES_IN_FRAME = 10;
 
     public static void init() {
@@ -96,6 +97,9 @@ public class Exposure {
         RecipeSerializers.init();
         SoundEvents.init();
         ArgumentTypes.init();
+
+        // Query supporters early, so it will be available right away when needed
+        Supporters.query();
     }
 
     public static void initServer(MinecraftServer server) {
@@ -255,6 +259,9 @@ public class Exposure {
         public static final DataComponentType<CameraId> CAMERA_ID = Register.dataComponentType("camera_id",
                 arg -> arg.persistent(CameraId.CODEC).networkSynchronized(CameraId.STREAM_CODEC));
 
+        public static final DataComponentType<Boolean> CAMERA_GOLD = Register.dataComponentType("camera_gold",
+                arg -> arg.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
+
         public static final DataComponentType<Boolean> CAMERA_ACTIVE = Register.dataComponentType("camera_active",
                 arg -> arg.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
 
@@ -330,6 +337,9 @@ public class Exposure {
         public static final DataComponentType<ResourceLocation> FILM_COLOR_PALETTE = Register.dataComponentType("film_color_palette",
                 arg -> arg.persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC));
 
+        public static final DataComponentType<DitherMode> FILM_DITHER_MODE = Register.dataComponentType("film_dither_mode",
+                arg -> arg.persistent(DitherMode.CODEC).networkSynchronized(DitherMode.STREAM_CODEC));
+
         public static final DataComponentType<List<Frame>> FILM_FRAMES =
                 Register.dataComponentType("film_frames",
                         arg -> arg.persistent(Frame.CODEC.listOf(0, 256))
@@ -361,10 +371,10 @@ public class Exposure {
 
         // --
 
-        public static final DataComponentType<ProjectionMode> INTERPLANAR_PROJECTOR_MODE =
+        public static final DataComponentType<DitherMode> INTERPLANAR_PROJECTOR_MODE =
                 Register.dataComponentType("interplanar_projector_mode",
-                        arg -> arg.persistent(ProjectionMode.CODEC)
-                                .networkSynchronized(ProjectionMode.STREAM_CODEC));
+                        arg -> arg.persistent(DitherMode.CODEC)
+                                .networkSynchronized(DitherMode.STREAM_CODEC));
 
         public static final DataComponentType<String> INTERPLANAR_PROJECTOR_ERROR_CODE =
                 Register.dataComponentType("interplanar_projector_error_code",

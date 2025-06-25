@@ -26,6 +26,9 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ExposureClient {
     private static final Cycles CYCLES = new Cycles();
     private static final ExposureStore EXPOSURE_STORE = new ExposureStore();
@@ -79,19 +82,28 @@ public class ExposureClient {
     // --
 
     public static boolean shouldUseDirectCapture() {
-        //noinspection ConstantValue
-        return Config.Client.FORCE_DIRECT_CAPTURE.isTrue() || Config.Client.FORCE_DIRECT_CAPTURE_MODS.get().stream().anyMatch(PlatformHelper::isModLoaded);
+        //TODO: maybe check if neoforge is ok and then enable it only on fabric?
+        if (PlatformHelper.isModLoaded("distanthorizons")
+                && (PlatformHelper.isModLoaded("oculus") || PlatformHelper.isModLoaded("iris"))) {
+            return true;
+        }
+
+        return Config.Client.FORCE_DIRECT_CAPTURE.isTrue()
+                || Config.Client.FORCE_DIRECT_CAPTURE_MODS.get().stream().anyMatch(PlatformHelper::isModLoaded);
     }
 
     // --
 
     private static void registerItemModelProperties() {
+        ItemProperties.register(Exposure.Items.CAMERA.get(), Exposure.resource("camera_gold"), (stack, level, entity, seed) ->
+                stack.getOrDefault(Exposure.DataComponents.CAMERA_GOLD, false) ? 1 : 0);
+
         ItemProperties.register(Exposure.Items.CAMERA.get(), Exposure.resource("camera_active"), (stack, level, entity, seed) ->
                 stack.getItem() instanceof CameraItem cameraItem && cameraItem.isActive(stack) ? 1 : 0);
 
         ItemProperties.register(Exposure.Items.CAMERA.get(), Exposure.resource("camera_selfie"), (stack, level, entity, seed) ->
                 stack.getItem() instanceof CameraItem cameraItem && cameraItem.isInSelfieMode(stack)
-                        ? entity == Minecrft.player() ? 0.5f : 1f
+                        ? entity == Minecrft.get().getCameraEntity() ? 0.5f : 1f
                         : 0);
 
         ItemProperties.register(Exposure.Items.CAMERA.get(), Exposure.resource("camera_has_lens"), (stack, level, entity, seed) ->
@@ -99,7 +111,6 @@ public class ExposureClient {
 
         ItemProperties.register(Exposure.Items.CAMERA.get(), Exposure.resource("camera_has_flash"), (stack, level, entity, seed) ->
                 !Attachment.FLASH.get(stack).isEmpty() ? 1 : 0);
-
 
         ItemProperties.register(Exposure.Items.CHROMATIC_SHEET.get(), Exposure.resource("channels"), (stack, clientLevel, livingEntity, seed) ->
                 stack.getItem() instanceof ChromaticSheetItem chromaticSheet ?
@@ -119,24 +130,31 @@ public class ExposureClient {
     }
 
     public static class Models {
-        public static final ModelResourceLocation CAMERA_GUI =
-                new ModelResourceLocation(Exposure.resource("camera_gui"), "standalone");
-        public static final ModelResourceLocation PHOTOGRAPH_FRAME_SMALL =
-                new ModelResourceLocation(Exposure.resource("photograph_frame_small"), "standalone");
-        public static final ModelResourceLocation PHOTOGRAPH_FRAME_MEDIUM =
-                new ModelResourceLocation(Exposure.resource("photograph_frame_medium"), "standalone");
-        public static final ModelResourceLocation PHOTOGRAPH_FRAME_LARGE =
-                new ModelResourceLocation(Exposure.resource("photograph_frame_large"), "standalone");
-        public static final ModelResourceLocation CLEAR_PHOTOGRAPH_FRAME_SMALL =
-                new ModelResourceLocation(Exposure.resource("glass_photograph_frame_small"), "standalone");
-        public static final ModelResourceLocation CLEAR_PHOTOGRAPH_FRAME_MEDIUM =
-                new ModelResourceLocation(Exposure.resource("glass_photograph_frame_medium"), "standalone");
-        public static final ModelResourceLocation CLEAR_PHOTOGRAPH_FRAME_LARGE =
-                new ModelResourceLocation(Exposure.resource("glass_photograph_frame_large"), "standalone");
-        public static final ModelResourceLocation CAMERA_STAND =
-                new ModelResourceLocation(Exposure.resource("camera_stand"), "standalone");
-        public static final ModelResourceLocation CAMERA_STAND_MOUNT =
-                new ModelResourceLocation(Exposure.resource("camera_stand_mount"), "standalone");
+        public static final Set<ModelResourceLocation> MODELS = new HashSet<>();
+
+        public static final ModelResourceLocation CAMERA_GUI = register("item/camera_gui");
+        public static final ModelResourceLocation CAMERA_ACTIVE = register("item/camera_active");
+        public static final ModelResourceLocation CAMERA_SELFIE = register("item/camera_selfie");
+        public static final ModelResourceLocation CAMERA_VIEWFINDER = register("item/camera_parts/viewfinder");
+        public static final ModelResourceLocation CAMERA_FLASH = register("item/camera_parts/flash");
+        public static final ModelResourceLocation CAMERA_LENS = register("item/camera_parts/lens");
+        public static final ModelResourceLocation CAMERA_SELFIE_STICK = register("item/camera_parts/selfie_stick");
+        public static final ModelResourceLocation SELFIE_STICK = register("item/selfie_stick");
+
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_SMALL = register("block/photograph_frame_small");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_MEDIUM = register("block/photograph_frame_medium");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_LARGE = register("block/photograph_frame_large");
+        public static final ModelResourceLocation CLEAR_PHOTOGRAPH_FRAME_SMALL = register("block/glass_photograph_frame_small");
+        public static final ModelResourceLocation CLEAR_PHOTOGRAPH_FRAME_MEDIUM = register("block/glass_photograph_frame_medium");
+        public static final ModelResourceLocation CLEAR_PHOTOGRAPH_FRAME_LARGE = register("block/glass_photograph_frame_large");
+        public static final ModelResourceLocation CAMERA_STAND = register("block/camera_stand");
+        public static final ModelResourceLocation CAMERA_STAND_MOUNT = register("block/camera_stand_mount");
+
+        public static ModelResourceLocation register(String path) {
+            ModelResourceLocation location = new ModelResourceLocation(Exposure.resource(path), "standalone");
+            MODELS.add(location);
+            return location;
+        }
     }
 
     public static class Textures {

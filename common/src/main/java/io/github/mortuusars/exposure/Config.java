@@ -56,6 +56,9 @@ public class Config {
         public static final ModConfigSpec.BooleanValue FILM_ROLL_EASY_RENAMING;
         public static final ModConfigSpec.BooleanValue INTERPLANAR_PROJECTOR_LARGER_RENAMING_LIMIT;
 
+        // Integration
+        public static final ModConfigSpec.BooleanValue CREATE_DEPLOYER_STAND_HOTSWAP;
+
         // Debug
         public static final ModConfigSpec.BooleanValue CLEANUP_TIMED_OUT_EXPECTED_EXPOSURES;
 
@@ -192,6 +195,14 @@ public class Config {
             }
             builder.pop();
 
+            builder.push("integration");
+            {
+                CREATE_DEPLOYER_STAND_HOTSWAP = builder
+                        .comment("Create Deployers will be able to insert/swap attachments on Camera Stand. Default: true")
+                        .define("create_deployer_stand_hotswap", true);
+            }
+            builder.pop();
+
             builder.comment("You wouldn't need to touch these settings most likely. They are there to help debug/fix some weird issues.")
                     .push("debug");
             {
@@ -267,6 +278,9 @@ public class Config {
         public static final ModConfigSpec.ConfigValue<String> VIEWFINDER_BACKGROUND_COLOR;
         public static final ModConfigSpec.ConfigValue<String> VIEWFINDER_FONT_MAIN_COLOR;
         public static final ModConfigSpec.ConfigValue<String> VIEWFINDER_FONT_SECONDARY_COLOR;
+        public static final ModConfigSpec.BooleanValue HIDE_HUD_WHILE_IN_VIEWFINDER;
+        public static final ModConfigSpec.IntValue VIEWFINDER_STATUS_ICON_OFFSET_X;
+        public static final ModConfigSpec.IntValue VIEWFINDER_STATUS_ICON_OFFSET_Y;
 
         // CAPTURE
         public static final ModConfigSpec.BooleanValue KEEP_POST_EFFECT;
@@ -281,6 +295,7 @@ public class Config {
         public static final ModConfigSpec.BooleanValue HIDE_PROJECTED_PHOTOGRAPHS_MADE_BY_OTHERS;
         public static final ModConfigSpec.BooleanValue HIDE_ALL_PHOTOGRAPHS_MADE_BY_OTHERS;
         public static final ModConfigSpec.IntValue PHOTOGRAPH_FRAME_CULLING_DISTANCE;
+        public static final ModConfigSpec.DoubleValue PHOTOGRAPH_FRAME_IMAGE_OFFSET;
 
         // INTEGRATION
         public static final ModConfigSpec.BooleanValue SHOW_JEI_INFORMATION;
@@ -370,6 +385,15 @@ public class Config {
                         .comment("Color in hex format. AARRGGBB.").define("font_main_color", "FF2B2622");
                 VIEWFINDER_FONT_SECONDARY_COLOR = builder
                         .comment("Color in hex format. AARRGGBB.").define("font_secondary_color", "FF7A736C");
+                HIDE_HUD_WHILE_IN_VIEWFINDER = builder
+                        .comment("HUD will be hidden while looking through viewfinder. Default: true")
+                        .define("hide_hud_while_in_viewfinder", true);
+                VIEWFINDER_STATUS_ICON_OFFSET_X = builder
+                        .comment("X offset of a viewfinder status icon. Default: 0")
+                        .defineInRange("status_icon_offset_x", 0, -999, 999);
+                VIEWFINDER_STATUS_ICON_OFFSET_Y = builder
+                        .comment("Y offset of a viewfinder status icon. Default: 0")
+                        .defineInRange("status_icon_offset_y", 0, -999, 999);
                 builder.pop();
             }
 
@@ -387,15 +411,15 @@ public class Config {
                         .defineInRange("flash_capture_delay_ticks", 4, 1, FlashBlock.LIFETIME_TICKS);
                 FORCE_DIRECT_CAPTURE = builder
                         .comment("Force legacy (pre 1.21) capturing method for taking images. Enable if you experiencing issues with resulting images.",
-                                "Direct method will be used regardless of this setting if mods defined in 'mods_needing_direct_capture' is installed.",
+                                "Direct method will be used regardless of this setting if mods defined in 'force_direct_capture_default_mods' is installed.",
                                 "Default: false")
                         .define("force_direct_capture", false);
                 FORCE_DIRECT_CAPTURE_MODS = builder
                         .comment("Direct capture will be used if any of these mods is installed.",
                                 "Format: '[\"mod_id\", \"mod_id\"]'. Default: [" + String.join(", ", Exposure.MODS_REQUIRING_DIRECT_CAPTURE) + "]")
-                        .defineList("force_direct_capture_mods", () -> Exposure.MODS_REQUIRING_DIRECT_CAPTURE, () -> "mod_id", o -> true);
+                        .defineListAllowEmpty("force_direct_capture_default_mods", () -> Exposure.MODS_REQUIRING_DIRECT_CAPTURE, () -> "mod_id", o -> true);
                 DIRECT_CAPTURE_DELAY_FRAMES = builder
-                        .comment("Delay in frames before capturing an image if 'direct_capture' method is in use (or if Oculus or Iris is installed).",
+                        .comment("Delay in frames before capturing an image if 'direct_capture' method is in use.",
                                 "Set to higher value when leftovers of GUI elements (such as nameplates) are visible on the images",
                                 "(some shaders have temporal effects that take several frames to disappear fully)")
                         .defineInRange("direct_capture_delay_frames", 0, 0, 100);
@@ -420,6 +444,9 @@ public class Config {
                         .comment("Distance from the player beyond which Photograph Frame would not be rendered. Default: 64",
                                 "Note: this number may not relate to distance in blocks exactly. It's influenced by render distance and entity distance settings.")
                         .defineInRange("photograph_frame_culling_distance", 64, 8, 128);
+                PHOTOGRAPH_FRAME_IMAGE_OFFSET = builder
+                        .comment("Depth offset to Photograph in Photograph Frame. Can be used to fix issues with some 3D resourcepacks. Value of 0.015 is good for 'Classic 3D' resourcepack. Default: 0.0")
+                        .defineInRange("photograph_frame_image_offset", 0.0, -1.0, 1.0);
                 builder.pop();
             }
 

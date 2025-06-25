@@ -1,5 +1,45 @@
 # Changelog
 
+## 1.9.10 - 2025-06-21
+- Create Deployer can now install/swap attachments on Camera Stand.
+- Fixed not being able to extract a Camera item from Refined Storage grids. 
+
+## 1.9.9 - 2025-06-15
+- Fixed github query hanging the game for long time when it's not available.
+
+## 1.9.8 - 2025-06-07
+- Added `ProtoManly's Weather` to the `force_direct_capture_default_mods` config option, to fix their sky not appearing in photos.
+  - This change will not apply to existing configs, so you'll need to delete existing file to let it regenerate or add it manually. 
+- Updated localization files.
+
+## 1.9.7 - 2025-05-30
+- Fixed rendering issue when Distance Horizons and Iris are both installed and shader is activated by force enabling direct capture when these mods are detected together.
+- Fixed photographs dropped as item in creative mode from photograph screen not setting their type and thus require wrong dyes in copying recipe. 
+
+## 1.9.6 - 2025-05-24
+- Fixed small server-side error.
+- Updated localization files.
+
+## 1.9.5 - 2025-05-24
+- Added 'hide_hud_while_in_viewfinder' and 'status_icon_offset_<x/y>' config options.
+
+## 1.9.4 - 2025-05-23
+- Background capture method now works with Iris, Oculus and Distant Horizons. (thanks Inconn)
+  - Renamed config option 'force_direct_capture_mods' to 'force_direct_capture_default_mods' to reset this option to default (to remove now compatible mods in existing configs).
+    - If you have added custom values to this config option, you'll need to re-add them.
+    - Removed 'effective' from this config value and added 'veil', as it's the one that causes issues.
+- Reworked how Camera model is created.
+  - Resourcepacks that change the camera would probably need to be updated. Sorry.
+- Readjusted selfie mode camera for holder POV and outside POV.
+- Fixed wrong selfie camera model showing when in selfie mode and looking at yourself from outside (Camera Stand for example).
+- Camera Stand tooltip no longer renders when HUD is hidden.
+
+## 1.9.3 - 2025-05-21
+- Added 'exposure:film_dither_mode' ("dithered" or "clean") component for films.
+- Added 'photograph_frame_image_offset' that can be used to fix some issues with 3D resourcepacks.
+- Fixed Camera model holding pose in thirdperson selfie mode. 
+- Fixed photograph not rendering correctly in Item Frame (when 'photograph_renders_in_item_frame' is enabled).
+
 ## 1.9.2 - 2025-04-24
 - [Fabric] Config screen can now be accessed when ModMenu is installed.
 - Fixed missing Create spout developing recipes for high sensitivity films.

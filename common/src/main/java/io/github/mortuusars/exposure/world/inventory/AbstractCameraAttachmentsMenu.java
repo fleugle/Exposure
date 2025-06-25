@@ -1,5 +1,7 @@
 package io.github.mortuusars.exposure.world.inventory;
 
+import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.util.supporter.Supporters;
 import io.github.mortuusars.exposure.world.inventory.slot.FilteredSlot;
 import io.github.mortuusars.exposure.world.item.camera.Attachment;
 import io.github.mortuusars.exposure.world.item.camera.CameraItem;
@@ -21,6 +23,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public abstract class AbstractCameraAttachmentsMenu extends AbstractContainerMenu {
+    public static final int SKIN_REGULAR_BUTTON_ID = 100;
+    public static final int SKIN_GOLD_BUTTON_ID = 101;
+
     protected final Player player;
     protected final CameraAccess cameraAccess;
     protected final List<Attachment<?>> attachments;
@@ -209,6 +214,20 @@ public abstract class AbstractCameraAttachmentsMenu extends AbstractContainerMen
             }
         }
         return hasRemainder;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (Supporters.hasAccessToGoldenSkin(player.getUUID())) {
+            if (id == SKIN_REGULAR_BUTTON_ID) {
+                getCamera().apply((i, s) -> s.set(Exposure.DataComponents.CAMERA_GOLD, false));
+                return true;
+            } else if (id == SKIN_GOLD_BUTTON_ID) {
+                getCamera().apply((i, s) -> s.set(Exposure.DataComponents.CAMERA_GOLD, true));
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
